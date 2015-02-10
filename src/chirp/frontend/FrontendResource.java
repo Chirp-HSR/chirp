@@ -88,7 +88,7 @@ public class FrontendResource {
 	@Path("logout")
 	public Response doLogout(@Context Request request) {
 		request.getSession().removeAttribute("userId");
-		return Response.temporaryRedirect(uri("/")).build();
+		return Response.seeOther(uri("/")).build();
 	}
 
 	private static URI uri(String uri) {

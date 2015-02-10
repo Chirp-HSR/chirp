@@ -1,7 +1,6 @@
 package chirp.cli.distributed;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import chirp.api.TweetRepository;
 import chirp.cli.utils.ServiceUtils;
@@ -13,8 +12,8 @@ public class ChirpFrontendService {
 	public static void main(String[] args) throws IOException {
 		TweetRepository repo = new HttpTweetRepositoryClient(FrontendConfig.BACKEND_URI);
 
-		ServiceUtils.executeServer(FrontendConfig.HOST_URI, Arrays.<Object> asList(
-				new FrontendResource(repo, FrontendConfig.RENDERER)));
+		ServiceUtils.executeServer(FrontendConfig.HOST_URI,
+				new FrontendResource(repo, FrontendConfig.RENDERER));
 	}
 
 }

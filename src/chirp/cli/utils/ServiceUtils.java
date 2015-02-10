@@ -2,7 +2,6 @@ package chirp.cli.utils;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -23,7 +22,7 @@ public class ServiceUtils {
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(ServiceUtils.class);
 
-	public static void executeServer(String hostUri, List<Object> resources)
+	public static void executeServer(String hostUri, Object... resources)
 			throws IOException {
 		LOGGER.info("Start Chirp instance on {}", hostUri);
 

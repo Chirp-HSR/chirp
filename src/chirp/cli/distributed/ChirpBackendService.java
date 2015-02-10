@@ -1,7 +1,6 @@
 package chirp.cli.distributed;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import chirp.api.TweetRepository;
 import chirp.backend.FollowersResource;
@@ -15,7 +14,8 @@ public class ChirpBackendService {
 		TweetRepository repo = new RedisTweetRepository(
 				BackendConfig.REDIS_HOST);
 
-		ServiceUtils.executeServer(BackendConfig.HOST_URI, Arrays.<Object> asList(
-				new TweetsResource(repo), new FollowersResource(repo)));
+		ServiceUtils.executeServer(BackendConfig.HOST_URI,
+				new TweetsResource(repo),
+				new FollowersResource(repo));
 	}
 }

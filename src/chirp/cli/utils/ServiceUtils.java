@@ -29,7 +29,8 @@ public class ServiceUtils {
 		ResourceConfig rc = new ResourceConfig()
 				.register(RequestTracingFilter.class)
 				.register(AccessLogFilter.class)
-				.register(ExceptionLogger.class).register(JacksonFeature.class);
+				.register(ExceptionLogger.class)
+				.register(JacksonFeature.class);
 
 		for (Object resource : resources) {
 			rc = rc.register(resource);
@@ -44,5 +45,7 @@ public class ServiceUtils {
 
 		System.in.read();
 		server.shutdownNow();
+		
+		LOGGER.info("Chirp instance {} stopped", hostUri);
 	}
 }

@@ -14,6 +14,11 @@ public class Config {
 	public static final String REDIS_HOST = "localhost";
 	
 	/**
+	 * The port of the Redis server.
+	 */
+	public static final int REDIS_PORT = 6379;
+	
+	/**
 	 * The class used for rendering timelines. Use one of the following:
 	 * 
 	 * - `new TimelineRenderer()` for non-cached rendering

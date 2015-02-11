@@ -12,7 +12,7 @@ public class ChirpBackendService {
 
 	public static void main(String[] args) throws IOException {
 		TweetRepository repo = new RedisTweetRepository(
-				BackendConfig.REDIS_HOST);
+				BackendConfig.REDIS_HOST, BackendConfig.REDIS_PORT);
 
 		ServiceUtils.executeServer(BackendConfig.HOST_URI,
 				new TweetsResource(repo),

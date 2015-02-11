@@ -25,8 +25,8 @@ public class RedisTweetRepository implements TweetRepository {
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(RedisTweetRepository.class);
 
-	public RedisTweetRepository(String redisHost) {
-		this.pool = new JedisPool(redisHost);
+	public RedisTweetRepository(String redisHost, int redisPort) {
+		this.pool = new JedisPool(redisHost, redisPort);
 		this.mapper = new ObjectMapper();
 	}
 

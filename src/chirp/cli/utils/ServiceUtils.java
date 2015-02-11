@@ -14,6 +14,10 @@ import chirp.logging.AccessLogFilter;
 import chirp.logging.ExceptionLogger;
 import chirp.logging.RequestTracingFilter;
 
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jersey2.InstrumentedResourceMethodApplicationListener;
+
 public class ServiceUtils {
 
 	private ServiceUtils() {
@@ -22,11 +26,17 @@ public class ServiceUtils {
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(ServiceUtils.class);
 
+	public final static MetricRegistry METRICS = new MetricRegistry();
+
 	public static void executeServer(String hostUri, Object... resources)
 			throws IOException {
+		final JmxReporter reporter = JmxReporter.forRegistry(METRICS).build();
+		reporter.start();
+		
 		LOGGER.info("Start Chirp instance on {}", hostUri);
 
 		ResourceConfig rc = new ResourceConfig()
+				.register(new InstrumentedResourceMethodApplicationListener(METRICS))
 				.register(RequestTracingFilter.class)
 				.register(AccessLogFilter.class)
 				.register(ExceptionLogger.class)

@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.grizzly.http.server.Request;
 
+import com.codahale.metrics.annotation.Timed;
+
 import chirp.api.Timeline;
 import chirp.api.Tweet;
 import chirp.api.TweetRepository;
@@ -55,6 +57,7 @@ public class FrontendResource {
 
 	@GET
 	@Path("tweets")
+	@Timed
 	public Response getTimeline(@Context Request request) throws IOException {
 		Integer userId = (Integer) request.getSession().getAttribute("userId");
 		if (userId != null) {

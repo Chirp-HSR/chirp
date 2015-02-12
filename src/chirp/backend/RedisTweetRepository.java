@@ -7,26 +7,31 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import chirp.api.Timeline;
 import chirp.api.Tweet;
 import chirp.api.TweetRepository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Provides a concrete instance of TweetRepository using Redis as persistent
  * storage.
  */
-public class RedisTweetRepository implements TweetRepository {
-	private final JedisPool pool;
+public class RedisTweetRepository implements TweetRepository,
+		RedisTweetRepositoryMBean {
+	private String redisHost;
+	private int redisPort;
+	private JedisPool pool;
 	private final ObjectMapper mapper;
 
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(RedisTweetRepository.class);
 
 	public RedisTweetRepository(String redisHost, int redisPort) {
+		this.redisHost = redisHost;
+		this.redisPort = redisPort;
 		this.pool = new JedisPool(redisHost, redisPort);
 		this.mapper = new ObjectMapper();
 	}
@@ -91,5 +96,18 @@ public class RedisTweetRepository implements TweetRepository {
 
 	public static String timelineKey(long userId) {
 		return String.format("timeline:%d", userId);
+	}
+
+	@Override
+	public String getRedisHost() {
+		return redisHost;
+	}
+
+	@Override
+	public void setRedisHost(String host) {
+		LOGGER.info("Change redis host from {}:{} to {}:{}", redisHost,
+				redisPort, host, redisPort);
+		redisHost = host;
+		pool = new JedisPool(redisHost, redisPort);
 	}
 }

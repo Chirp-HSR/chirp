@@ -1,8 +1,9 @@
 package chirp.frontend;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.function.Supplier;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -11,11 +12,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import chirp.api.Serialization;
 import chirp.api.Timeline;
 import chirp.api.Tweet;
 import chirp.api.TweetRepository;
@@ -29,61 +32,59 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 	private final Client client;
 	private final WebTarget tweets;
 	private final WebTarget followers;
-	private final ObjectMapper mapper;
+	private final Serialization serialization;
+
+	private final static Logger LOGGER = LoggerFactory.getLogger(HttpTweetRepositoryClient.class);
 
 	public HttpTweetRepositoryClient(String repoUrl) {
 		client = ClientBuilder.newClient();
 		WebTarget repo = client.target(repoUrl);
 		tweets = repo.path("tweets");
 		followers = repo.path("followers");
-		mapper = new ObjectMapper();
+		serialization = new Serialization();
 	}
 
 	@Override
 	public void propagateTweet(final Tweet tweet) {
-		try {
-			String v = mapper.writeValueAsString(tweet);
-			Entity<String> entity = Entity.json(v);
-			
-			Response resp = tweets.request(MediaType.APPLICATION_JSON)
-					.header("X-Request-ID", MDC.get("requestId")).post(entity);
-			
-			if(resp.getStatusInfo().getFamily() != Family.SUCCESSFUL){
-				// TODO Request failed
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String v = serialization.serialize(tweet);
+		Entity<String> entity = Entity.json(v);
+		Response resp = tweets.request(MediaType.APPLICATION_JSON).header("X-Request-ID", MDC.get("requestId"))
+				.post(entity);
+
+		successOrThrow(resp, () -> {
+			LOGGER.info("Tweet {} propagated", tweet.hashCode());
+			return 0;
+		});
 	}
 
 	@Override
 	public Timeline getTimeline(long userId) {
-		Response resp = tweets.queryParam("userId", userId)
-				.request(MediaType.APPLICATION_JSON)
+		Response resp = tweets.queryParam("userId", userId).request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId")).get();
-		
-		try {
-			return mapper.readValue(resp.readEntity(String.class),
-					Timeline.class);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			return null;
-		}
+
+		return successOrThrow(resp, () -> {
+			String json = resp.readEntity(String.class);
+			return serialization.deserializer(Timeline.class).apply(json);
+		});
 	}
 
 	@Override
 	public List<Long> getFollowers(long userId) {
-		Response resp = followers.queryParam("userId", userId)
-				.request(MediaType.APPLICATION_JSON)
+		Response resp = followers.queryParam("userId", userId).request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId")).get();
-		
-		try {
-			return mapper.readValue(resp.readEntity(String.class),
-					new TypeReference<List<Long>>(){});
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			return null;
+
+		return successOrThrow(resp, () -> {
+			String json = resp.readEntity(String.class);
+			return serialization.deserializer(new TypeReference<List<Long>>() {}).apply(json);
+		});
+	}
+	
+	private <T> T successOrThrow(Response resp, Supplier<T> handler){
+		if (resp.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+			return handler.get();
+		} else {
+			LOGGER.error("Request failed with status {}", resp.getStatus());
+			throw new WebApplicationException(resp.getStatus());
 		}
 	}
 }

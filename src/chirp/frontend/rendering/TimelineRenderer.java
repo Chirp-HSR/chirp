@@ -1,6 +1,7 @@
 package chirp.frontend.rendering;
 
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import chirp.api.Timeline;
 import chirp.api.Tweet;
@@ -15,11 +16,10 @@ public class TimelineRenderer {
 				+ "<input type=\"submit\" value=\"Submit Tweet\" />"
 				+ "</form>" + "<h2>Timeline</h2>";
 
-		for (Tweet tweet : timeline.getTweets()) {
-			content += renderTweet(tweet);
-		}
-
-		return content;
+		return content + 
+				timeline.getTweets().stream()
+			.map(this::renderTweet)
+			.reduce("", String::concat);
 	}
 
 	public String renderTweet(Tweet tweet) {
@@ -27,18 +27,15 @@ public class TimelineRenderer {
 		// parse hashtags and URLs and probably include third party
 		// content (e.g. from image hosters or news sites)
 		long n = calc();
-		return String
-				.format("<p><span style=\"color: red\">%d</span><span>%s</span><small>%d</small>",
-						tweet.getOriginatorId(), tweet.getContent(), n);
+		return String.format("<p><span style=\"color: red\">%d</span><span>%s</span><small>%d</small>",
+				tweet.getOriginatorId(), tweet.getContent(), n);
 	}
 
 	private long calc() {
 		// simulate workload by adding some numbers
 		Random r = new Random();
-		long res = 0;
-		for (int i = 0; i < 40000; i++) {
-			res += r.nextInt(10);
-		}
-		return res;
+		return IntStream.generate(() -> r.nextInt(10))
+			.limit(40000)
+			.reduce(0, (a, b) -> a + b);
 	}
 }

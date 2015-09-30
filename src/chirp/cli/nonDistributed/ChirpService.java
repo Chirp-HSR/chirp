@@ -9,7 +9,7 @@ import chirp.frontend.FrontendResource;
 
 public class ChirpService {
 	public static void main(String[] args) throws IOException {
-		TweetRepository repo = new RedisTweetRepository(Config.REDIS_HOST, Config.REDIS_PORT);
+		TweetRepository repo = new RedisTweetRepository(Config.REDIS_HOST);
 
 		ServiceUtils.executeServer(Config.HOST_URI,
 				new FrontendResource(repo, Config.RENDERER));

@@ -10,9 +10,4 @@ public class BackendConfig {
 	 * The hostname of the Redis server.
 	 */
 	public static final String REDIS_HOST = "localhost";
-	
-	/**
-	 * The port of the Redis server.
-	 */
-	public static final int REDIS_PORT = 6379;
 }

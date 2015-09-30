@@ -1,75 +1,75 @@
 package chirp.backend;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import chirp.api.Serialization;
 import chirp.api.Timeline;
 import chirp.api.Tweet;
 import chirp.api.TweetRepository;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  * Provides a concrete instance of TweetRepository using Redis as persistent
  * storage.
  */
-public class RedisTweetRepository implements TweetRepository {
-	private final JedisPool pool;
-	private final ObjectMapper mapper;
+public class RedisTweetRepository implements TweetRepository, RedisTweetRepositoryMBean {
+	private JedisPool pool;
+	private final Serialization serialization;
+	private String redisHost;
 
-	private final static Logger LOGGER = LoggerFactory
-			.getLogger(RedisTweetRepository.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(RedisTweetRepository.class);
 
-	public RedisTweetRepository(String redisHost, int redisPort) {
-		this.pool = new JedisPool(redisHost, redisPort);
-		this.mapper = new ObjectMapper();
+	public RedisTweetRepository(String redisHost) {
+		this.redisHost = redisHost;
+		this.pool = new JedisPool(redisHost);
+		this.serialization = new Serialization();
 	}
 
 	@Override
 	public void propagateTweet(final Tweet tweet) {
-		Jedis jedis = pool.getResource();
-		List<Long> followers = getFollowers(tweet.getOriginatorId());
-		LOGGER.debug(
-				"Propagate tweet {} to followers of user {} (total {} followers)",
-				tweet.hashCode(), tweet.getOriginatorId(), followers.size());
-		for (Long followerId : followers) {
-			String timelineKey = timelineKey(followerId);
-			try {
-				String json = mapper.writeValueAsString(tweet);
+		withResource(jedis -> {
+			List<Long> followers = getFollowers(tweet.getOriginatorId());
+			LOGGER.debug("Propagate tweet {} to followers of user {} (total {} followers)", tweet.hashCode(),
+					tweet.getOriginatorId(), followers.size());
+			
+			String json = serialization.serialize(tweet);
+			
+			followers.forEach(followerId -> {
+				String timelineKey = timelineKey(followerId);
 				LOGGER.trace("Push tweet {} to timeline {}", json, timelineKey);
 				jedis.lpush(timelineKey, json);
 				jedis.ltrim(timelineKey, 0, 99);
-			} catch (IOException e) {
-				LOGGER.error("Could not serialize tweet {}", tweet, e);
-			}
-		}
-		LOGGER.debug("{} tweets written", followers.size());
-		pool.returnResource(jedis);
+			});
+			
+			LOGGER.debug("{} tweets written", followers.size());
+			return 0;
+		});
 	}
 
 	@Override
 	public Timeline getTimeline(long userId) {
-		Jedis jedis = pool.getResource();
-		LOGGER.debug("Fecth timeline of user {}", userId);
-		List<String> tweetData = jedis.lrange(timelineKey(userId), 0, 99);
-		LOGGER.debug("Received {} tweets", tweetData.size());
-		pool.returnResource(jedis);
+		return withResource(jedis -> {
+			LOGGER.debug("Fecth timeline of user {}", userId);
+			List<String> tweetData = jedis.lrange(timelineKey(userId), 0, 99);
+			LOGGER.debug("Received {} tweets", tweetData.size());
 
-		List<Tweet> tweets = new ArrayList<Tweet>();
-		for (String tweetJson : tweetData) {
-			try {
-				tweets.add(mapper.readValue(tweetJson, Tweet.class));
-			} catch (IOException e) {
-				LOGGER.error("Could not deserialize tweet {}", tweetJson, e);
-			}
-		}
-		return new Timeline(userId, tweets);
+			List<Tweet> tweets = tweetData.stream()
+					.map(serialization.deserializer(Tweet.class))
+					.collect(Collectors.toList());
+			
+			return new Timeline(userId, tweets);
+		});
 	}
 
 	@Override
@@ -91,5 +91,33 @@ public class RedisTweetRepository implements TweetRepository {
 
 	public static String timelineKey(long userId) {
 		return String.format("timeline:%d", userId);
+	}
+
+	private <T> T withResource(Function<Jedis, T> fn) {
+		try {
+			Jedis jedis = pool.getResource();
+			try {
+				T res = fn.apply(jedis);
+				return res;
+			} finally {
+				pool.returnResource(jedis);
+			}
+		} catch (JedisConnectionException e) {
+			LOGGER.error("Unable to connect to Redis at {}", redisHost, e);
+			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Override
+	public String getRedisHost() {
+		LOGGER.debug("Get redis host via MBean API");
+		return redisHost;
+	}
+
+	@Override
+	public void setRedisHost(String host) {
+		LOGGER.info("Change redis host from {} to {}", redisHost, host);
+		this.redisHost = host;
+		this.pool = new JedisPool(host);
 	}
 }

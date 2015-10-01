@@ -1,11 +1,11 @@
 package chirp.api;
 
 public class Tweet {
-	private final long originatorId;
+	private final int originatorId;
 
 	private final String content;
 
-	public Tweet(long originatorId, String content) {
+	public Tweet(int originatorId, String content) {
 		this.originatorId = originatorId;
 		this.content = content;
 	}
@@ -15,7 +15,7 @@ public class Tweet {
 		content = null;
 	}
 
-	public long getOriginatorId() {
+	public int getOriginatorId() {
 		return originatorId;
 	}
 

@@ -11,7 +11,10 @@ import javax.ws.rs.core.MediaType;
 import chirp.api.Timeline;
 import chirp.api.Tweet;
 import chirp.api.TweetRepository;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
+@Api()
 @Path("/tweets")
 @Produces(MediaType.APPLICATION_JSON)
 public class TweetsResource {
@@ -21,14 +24,16 @@ public class TweetsResource {
 		this.repo = repo;
 	}
 
+	@ApiOperation(value = "Post a new tweet to the timelines of all followers")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void postTweet(Tweet tweet) {
 		repo.propagateTweet(tweet);
 	}
-	
+
+	@ApiOperation(value = "The timeline of `userId`")
 	@GET
-	public Timeline getTimeline(@QueryParam("userId") int userId){
+	public Timeline getTimeline(@QueryParam("userId") int userId) {
 		return repo.getTimeline(userId);
 	}
 }

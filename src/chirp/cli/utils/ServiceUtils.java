@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -50,6 +51,9 @@ public class ServiceUtils {
 		// exposing the Jersey application at hostUri
 		final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(
 				URI.create(hostUri), rc);
+		
+		server.getServerConfiguration().addHttpHandler(
+				new StaticHttpHandler("target/swagger-ui"));
 
 		LOGGER.info("Chirp instance {} started", hostUri);
 

@@ -3,7 +3,7 @@ package chirp.backend;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.IntStream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -39,7 +39,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	@Override
 	public void propagateTweet(final Tweet tweet) {
 		withResource(jedis -> {
-			List<Long> followers = getFollowers(tweet.getOriginatorId());
+			List<Integer> followers = getFollowers(tweet.getOriginatorId());
 			LOGGER.debug("Propagate tweet {} to followers of user {} (total {} followers)", tweet.hashCode(),
 					tweet.getOriginatorId(), followers.size());
 			
@@ -58,7 +58,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	}
 
 	@Override
-	public Timeline getTimeline(long userId) {
+	public Timeline getTimeline(int userId) {
 		return withResource(jedis -> {
 			LOGGER.debug("Fecth timeline of user {}", userId);
 			List<String> tweetData = jedis.lrange(timelineKey(userId), 0, 99);
@@ -73,7 +73,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	}
 
 	@Override
-	public List<Long> getFollowers(long userId) {
+	public List<Integer> getFollowers(int userId) {
 		LOGGER.debug("Generate followers of user {}", userId);
 		// simulate i/o for db access
 		try {
@@ -81,7 +81,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 		} catch (InterruptedException e) {
 		}
 
-		List<Long> followers = LongStream.range(0, Math.min(userId, 1000)).boxed()
+		List<Integer> followers = IntStream.range(0, Math.min(userId, 1000) + 1).boxed()
 				.collect(Collectors.toList());
 		
 		LOGGER.debug("User {} has {} followers", userId, followers.size());

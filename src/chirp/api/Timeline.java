@@ -3,10 +3,10 @@ package chirp.api;
 import java.util.List;
 
 public class Timeline {
-	private final long ownerId;
+	private final int ownerId;
 	private final List<Tweet> tweets;
 
-	public Timeline(long ownerId, List<Tweet> tweets){
+	public Timeline(int ownerId, List<Tweet> tweets){
 		this.ownerId = ownerId;
 		this.tweets = tweets;
 	}
@@ -16,7 +16,7 @@ public class Timeline {
 		this.tweets = null;
 	}
 
-	public Long getOwnerId() {
+	public Integer getOwnerId() {
 		return ownerId;
 	}
 

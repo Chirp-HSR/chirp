@@ -62,6 +62,11 @@
 			<artifactId>metrics-jersey2</artifactId>
 			<version>${metrics.version}</version>
 		</dependency>
+		<dependency>
+  			<groupId>io.swagger</groupId>
+  			<artifactId>swagger-jersey2-jaxrs</artifactId>
+  			<version>1.5.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -74,6 +79,79 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+        	<plugin>
+            	<groupId>com.github.kongchen</groupId>
+            	<artifactId>swagger-maven-plugin</artifactId>
+            	<version>3.1.0</version>
+            	<configuration>
+                	<apiSources>
+                    	<apiSource>
+                        	<locations>chirp.backend</locations>
+                        	<schemes>http</schemes>
+                        	<host>localhost:9090</host>
+                        	<basePath>/</basePath>
+                			<info>
+                    			<title>Chirp Backend Service</title>
+                    			<version>v1</version>
+                    			<description>
+                    			</description>
+                			</info>
+                			<outputPath>${basedir}/target/document.html</outputPath>
+                			<swaggerDirectory>${basedir}/target/swagger-ui</swaggerDirectory>
+                    	</apiSource>
+                	</apiSources>
+            	</configuration>
+	
+    			<executions>
+        			<execution>
+            			<phase>generate-sources</phase>
+            			<goals>
+                			<goal>generate</goal>
+            			</goals>
+        			</execution>
+    			</executions>
+        	</plugin>
+        	
+        	<plugin>
+    			<groupId>io.swagger</groupId>
+    			<artifactId>swagger-codegen-maven-plugin</artifactId>
+    			<version>2.1.3</version>
+    			<executions>
+        			<execution>
+        				<id>genJavaClient</id>
+            			<goals>
+                			<goal>generate</goal>
+            			</goals>
+            			<configuration>
+                			<inputSpec>target/swagger-ui/swagger.json</inputSpec>
+                			<language>java</language>
+                			<apiPackage>chirp.client.api</apiPackage>
+                			<modelPackage>chirp.client.model</modelPackage>
+                			<invokerPackage>chirp.client</invokerPackage>
+                			<addCompileSourceRoot>false</addCompileSourceRoot>
+                			<configOptions>
+                   				<sourceFolder>src/gen/java/main</sourceFolder>
+                   				<groupId>chirp</groupId>
+                   				<artifactId>client</artifactId>
+                   				<artifactVersion>0.0.1</artifactVersion>
+                			</configOptions>
+            			</configuration>
+        			</execution>
+        			<execution>
+        				<id>genDocs</id>
+            			<goals>
+                			<goal>generate</goal>
+            			</goals>
+            			<configuration>
+                			<inputSpec>target/swagger-ui/swagger.json</inputSpec>
+                			<language>html</language>
+                			<configOptions>
+                   				<sourceFolder>src/gen/java/main</sourceFolder>
+                			</configOptions>
+            			</configuration>
+        			</execution>
+    			</executions>
 			</plugin>
 		</plugins>
 	</build>

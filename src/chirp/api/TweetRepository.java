@@ -5,7 +5,7 @@ import java.util.List;
 public interface TweetRepository {
 	public void propagateTweet(Tweet tweet);
 
-	public Timeline getTimeline(long userId);
+	public Timeline getTimeline(int userId);
 	
-	public List<Long> getFollowers(long userId);
+	public List<Integer> getFollowers(int userId);
 }

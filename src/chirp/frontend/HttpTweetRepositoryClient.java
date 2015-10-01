@@ -58,7 +58,7 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 	}
 
 	@Override
-	public Timeline getTimeline(long userId) {
+	public Timeline getTimeline(int userId) {
 		Response resp = tweets.queryParam("userId", userId).request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId")).get();
 
@@ -69,13 +69,13 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 	}
 
 	@Override
-	public List<Long> getFollowers(long userId) {
+	public List<Integer> getFollowers(int userId) {
 		Response resp = followers.queryParam("userId", userId).request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId")).get();
 
 		return successOrThrow(resp, () -> {
 			String json = resp.readEntity(String.class);
-			return serialization.deserializer(new TypeReference<List<Long>>() {}).apply(json);
+			return serialization.deserializer(new TypeReference<List<Integer>>() {}).apply(json);
 		});
 	}
 	

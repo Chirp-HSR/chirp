@@ -10,13 +10,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import chirp.logging.AccessLogFilter;
-import chirp.logging.ExceptionLogger;
-import chirp.logging.RequestTracingFilter;
-
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jersey2.InstrumentedResourceMethodApplicationListener;
+
+import chirp.logging.AccessLogFilter;
+import chirp.logging.ExceptionLogger;
+import chirp.logging.RequestTracingFilter;
 
 public class ServiceUtils {
 

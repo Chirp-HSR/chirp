@@ -1,9 +1,9 @@
 package chirp.backend;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -75,16 +75,15 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	@Override
 	public List<Long> getFollowers(long userId) {
 		LOGGER.debug("Generate followers of user {}", userId);
-		// simulate workload for db access
+		// simulate i/o for db access
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
 		}
 
-		List<Long> followers = new ArrayList<Long>();
-		for (long i = 1; i <= Math.min(userId, 1000); i++) {
-			followers.add(i);
-		}
+		List<Long> followers = LongStream.range(0, Math.min(userId, 1000)).boxed()
+				.collect(Collectors.toList());
+		
 		LOGGER.debug("User {} has {} followers", userId, followers.size());
 		return followers;
 	}

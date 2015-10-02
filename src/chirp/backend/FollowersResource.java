@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import chirp.api.TweetRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Api()
 @Path("/followers")
@@ -22,7 +23,8 @@ public class FollowersResource {
 
 	@ApiOperation(value = "The followers of `userId`")
 	@GET
-	public int[] getFollowers(@QueryParam("userId") int userId) {
+	public int[] getFollowers(
+			@ApiParam(required = true) @QueryParam("userId") int userId) {
 		// swagger currently has some issues with operations returning generic lists;
 		// works fine with arrays
 		return repo.getFollowers(userId).stream().mapToInt(i -> i).toArray();

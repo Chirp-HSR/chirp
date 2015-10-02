@@ -90,14 +90,13 @@
                         	<locations>chirp.backend</locations>
                         	<schemes>http</schemes>
                         	<host>localhost:9090</host>
-                        	<basePath>/</basePath>
+                        	<basePath></basePath>
                 			<info>
                     			<title>Chirp Backend Service</title>
                     			<version>v1</version>
                     			<description>
                     			</description>
                 			</info>
-                			<outputPath>${basedir}/target/document.html</outputPath>
                 			<swaggerDirectory>${basedir}/target/swagger-ui</swaggerDirectory>
                     	</apiSource>
                 	</apiSources>
@@ -105,7 +104,7 @@
 	
     			<executions>
         			<execution>
-            			<phase>generate-sources</phase>
+            			<phase>generate-resources</phase>
             			<goals>
                 			<goal>generate</goal>
             			</goals>
@@ -120,6 +119,7 @@
     			<executions>
         			<execution>
         				<id>genJavaClient</id>
+        				<phase>compile</phase>
             			<goals>
                 			<goal>generate</goal>
             			</goals>
@@ -130,6 +130,7 @@
                 			<modelPackage>chirp.client.model</modelPackage>
                 			<invokerPackage>chirp.client</invokerPackage>
                 			<addCompileSourceRoot>false</addCompileSourceRoot>
+                			<output>${project.build.directory}/generated-sources/javaClient</output>
                 			<configOptions>
                    				<sourceFolder>src/gen/java/main</sourceFolder>
                    				<groupId>chirp</groupId>
@@ -140,15 +141,14 @@
         			</execution>
         			<execution>
         				<id>genDocs</id>
+        				<phase>compile</phase>
             			<goals>
                 			<goal>generate</goal>
             			</goals>
             			<configuration>
                 			<inputSpec>target/swagger-ui/swagger.json</inputSpec>
                 			<language>html</language>
-                			<configOptions>
-                   				<sourceFolder>src/gen/java/main</sourceFolder>
-                			</configOptions>
+                			<output>${project.build.directory}/generated-resources/</output>
             			</configuration>
         			</execution>
     			</executions>

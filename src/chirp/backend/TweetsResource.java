@@ -13,6 +13,7 @@ import chirp.api.Tweet;
 import chirp.api.TweetRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @Api()
 @Path("/tweets")
@@ -33,7 +34,8 @@ public class TweetsResource {
 
 	@ApiOperation(value = "The timeline of `userId`")
 	@GET
-	public Timeline getTimeline(@QueryParam("userId") int userId) {
+	public Timeline getTimeline(
+			@ApiParam(required = true) @QueryParam("userId") int userId) {
 		return repo.getTimeline(userId);
 	}
 }

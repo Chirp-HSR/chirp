@@ -48,7 +48,9 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 	public void propagateTweet(final Tweet tweet) {
 		String v = serialization.serialize(tweet);
 		Entity<String> entity = Entity.json(v);
-		Response resp = tweets.request(MediaType.APPLICATION_JSON).header("X-Request-ID", MDC.get("requestId"))
+		Response resp = tweets
+				.request(MediaType.APPLICATION_JSON)
+				.header("X-Request-ID", MDC.get("requestId"))
 				.post(entity);
 
 		successOrThrow(resp, () -> {
@@ -59,8 +61,11 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 
 	@Override
 	public Timeline getTimeline(int userId) {
-		Response resp = tweets.queryParam("userId", userId).request(MediaType.APPLICATION_JSON)
-				.header("X-Request-ID", MDC.get("requestId")).get();
+		Response resp = tweets
+				.queryParam("userId", userId)
+				.request(MediaType.APPLICATION_JSON)
+				.header("X-Request-ID", MDC.get("requestId"))
+				.get();
 
 		return successOrThrow(resp, () -> {
 			String json = resp.readEntity(String.class);
@@ -70,8 +75,11 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 
 	@Override
 	public List<Integer> getFollowers(int userId) {
-		Response resp = followers.queryParam("userId", userId).request(MediaType.APPLICATION_JSON)
-				.header("X-Request-ID", MDC.get("requestId")).get();
+		Response resp = followers
+				.queryParam("userId", userId)
+				.request(MediaType.APPLICATION_JSON)
+				.header("X-Request-ID", MDC.get("requestId"))
+				.get();
 
 		return successOrThrow(resp, () -> {
 			String json = resp.readEntity(String.class);

@@ -3,7 +3,6 @@ package chirp.backend;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -25,28 +24,29 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  */
 public class RedisTweetRepository implements TweetRepository, RedisTweetRepositoryMBean {
 	private JedisPool pool;
-	private final Serialization serialization;
+	
 	private String redisHost;
+
+	private final Serialization serialization = new Serialization();
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(RedisTweetRepository.class);
 
 	public RedisTweetRepository(String redisHost) {
 		this.redisHost = redisHost;
 		this.pool = new JedisPool(redisHost);
-		this.serialization = new Serialization();
 	}
 
 	@Override
 	public void propagateTweet(final Tweet tweet) {
 		withResource(jedis -> {
-			List<Integer> followers = getFollowers(tweet.getOriginatorId());
+			final List<Integer> followers = getFollowers(tweet.getOriginatorId());
 			LOGGER.debug("Propagate tweet {} to followers of user {} (total {} followers)", tweet.hashCode(),
 					tweet.getOriginatorId(), followers.size());
 			
-			String json = serialization.serialize(tweet);
+			final String json = serialization.serialize(tweet);
 			
 			followers.forEach(followerId -> {
-				String timelineKey = timelineKey(followerId);
+				final String timelineKey = timelineKey(followerId);
 				LOGGER.trace("Push tweet {} to timeline {}", json, timelineKey);
 				jedis.lpush(timelineKey, json);
 				jedis.ltrim(timelineKey, 0, 99);
@@ -61,31 +61,15 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	public Timeline getTimeline(int userId) {
 		return withResource(jedis -> {
 			LOGGER.debug("Fecth timeline of user {}", userId);
-			List<String> tweetData = jedis.lrange(timelineKey(userId), 0, 99);
+			final List<String> tweetData = jedis.lrange(timelineKey(userId), 0, 99);
 			LOGGER.debug("Received {} tweets", tweetData.size());
 
-			List<Tweet> tweets = tweetData.stream()
+			final List<Tweet> tweets = tweetData.stream()
 					.map(serialization.deserializer(Tweet.class))
 					.collect(Collectors.toList());
 			
 			return new Timeline(userId, tweets);
 		});
-	}
-
-	@Override
-	public List<Integer> getFollowers(int userId) {
-		LOGGER.debug("Generate followers of user {}", userId);
-		// simulate i/o for db access
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-		}
-
-		List<Integer> followers = IntStream.range(0, Math.min(userId, 1000) + 1).boxed()
-				.collect(Collectors.toList());
-		
-		LOGGER.debug("User {} has {} followers", userId, followers.size());
-		return followers;
 	}
 
 	public static String timelineKey(long userId) {
@@ -94,12 +78,9 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 
 	private <T> T withResource(Function<Jedis, T> fn) {
 		try {
-			Jedis jedis = pool.getResource();
-			try {
-				T res = fn.apply(jedis);
+			try(final Jedis jedis = pool.getResource()) {
+				final T res = fn.apply(jedis);
 				return res;
-			} finally {
-				pool.returnResource(jedis);
 			}
 		} catch (JedisConnectionException e) {
 			LOGGER.error("Unable to connect to Redis at {}", redisHost, e);

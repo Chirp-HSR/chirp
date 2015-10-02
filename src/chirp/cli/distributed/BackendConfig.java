@@ -1,5 +1,8 @@
 package chirp.cli.distributed;
 
+import chirp.api.TweetRepository;
+import chirp.backend.InMemoryTweetRepository;
+
 public class BackendConfig {
 	/**
 	 * The URI the backend service is exposed at.
@@ -7,7 +10,9 @@ public class BackendConfig {
 	public static final String HOST_URI = "http://localhost:9090/";
 	
 	/**
-	 * The hostname of the Redis server.
+	 * The implementation of the tweets repository. Use the following:
+	 * - new InMemoryTweetRepository()
+	 * - new RedisTweetRepository(REDIS_HOST)
 	 */
-	public static final String REDIS_HOST = "localhost";
+	public static final TweetRepository REPO = new InMemoryTweetRepository();
 }

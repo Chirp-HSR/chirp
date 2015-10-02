@@ -25,7 +25,7 @@ public class Tweet {
 	
 	public boolean equals(Object o){
 		if(o instanceof Tweet){
-			Tweet ot = (Tweet) o;
+			final Tweet ot = (Tweet) o;
 			return originatorId == ot.originatorId && content.equals(ot.content);
 		}
 		return false;

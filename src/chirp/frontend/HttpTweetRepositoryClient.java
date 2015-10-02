@@ -38,7 +38,7 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 
 	public HttpTweetRepositoryClient(String repoUrl) {
 		client = ClientBuilder.newClient();
-		WebTarget repo = client.target(repoUrl);
+		final WebTarget repo = client.target(repoUrl);
 		tweets = repo.path("tweets");
 		followers = repo.path("followers");
 		serialization = new Serialization();
@@ -46,9 +46,10 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 
 	@Override
 	public void propagateTweet(final Tweet tweet) {
-		String v = serialization.serialize(tweet);
-		Entity<String> entity = Entity.json(v);
-		Response resp = tweets
+		final Entity<String> entity = Entity.json(
+				serialization.serialize(tweet));
+		
+		final Response resp = tweets
 				.request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId"))
 				.post(entity);
@@ -61,7 +62,7 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 
 	@Override
 	public Timeline getTimeline(int userId) {
-		Response resp = tweets
+		final Response resp = tweets
 				.queryParam("userId", userId)
 				.request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId"))
@@ -75,7 +76,7 @@ public class HttpTweetRepositoryClient implements TweetRepository {
 
 	@Override
 	public List<Integer> getFollowers(int userId) {
-		Response resp = followers
+		final Response resp = followers
 				.queryParam("userId", userId)
 				.request(MediaType.APPLICATION_JSON)
 				.header("X-Request-ID", MDC.get("requestId"))

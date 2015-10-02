@@ -1,5 +1,7 @@
 package chirp.cli.nonDistributed;
 
+import chirp.api.TweetRepository;
+import chirp.backend.InMemoryTweetRepository;
 import chirp.frontend.rendering.TimelineRenderer;
 
 public class Config {
@@ -9,11 +11,6 @@ public class Config {
 	public static final String HOST_URI = "http://localhost:9000/";
 	
 	/**
-	 * The hostname of the Redis server.
-	 */
-	public static final String REDIS_HOST = "localhost";
-	
-	/**
 	 * The class used for rendering timelines. Use one of the following:
 	 * 
 	 * - `new TimelineRenderer()` for non-cached rendering
@@ -21,4 +18,11 @@ public class Config {
 	 * - `new RedisCachedTimelineRenderer(CACHE_HOSTNAME, CACHE_PORT)` for distributed caching on a Redis cache
 	 */
 	public static final TimelineRenderer RENDERER = new TimelineRenderer();
+	
+	/**
+	 * The implementation of the tweets repository. Use the following:
+	 * - new InMemoryTweetRepository()
+	 * - new RedisTweetRepository(REDIS_HOST)
+	 */
+	public static final TweetRepository REPO = new InMemoryTweetRepository();
 }

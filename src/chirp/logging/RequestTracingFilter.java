@@ -16,14 +16,12 @@ public class RequestTracingFilter implements ContainerRequestFilter {
 
 	private final String serverName;
 
-	private final Random rand;
+	private final Random rand = new Random();;
 
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(RequestTracingFilter.class);
 
 	public RequestTracingFilter() {
-		rand = new Random();
-
 		String serverName;
 		try {
 			serverName = InetAddress.getLocalHost().getHostName();
@@ -40,7 +38,7 @@ public class RequestTracingFilter implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext)
 			throws IOException {
 		if (requestContext.getHeaderString("X-Request-ID") == null) {
-			String requestId = createRequestId();
+			final String requestId = createRequestId();
 			MDC.put("requestId", requestId);
 			LOGGER.debug("new request id");
 		} else {
@@ -49,7 +47,7 @@ public class RequestTracingFilter implements ContainerRequestFilter {
 	}
 
 	private String createRequestId() {
-		StringBuilder sb = new StringBuilder(serverName);
+		final StringBuilder sb = new StringBuilder(serverName);
 		sb.append(':');
 		sb.append(System.currentTimeMillis());
 		sb.append(':');

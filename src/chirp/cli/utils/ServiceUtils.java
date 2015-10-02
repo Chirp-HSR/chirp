@@ -35,7 +35,7 @@ public class ServiceUtils {
 		
 		LOGGER.info("Start Chirp instance on {}", hostUri);
 
-		ResourceConfig rc = new ResourceConfig()
+		final ResourceConfig rc = new ResourceConfig()
 				.register(new InstrumentedResourceMethodApplicationListener(METRICS))
 				.register(RequestTracingFilter.class)
 				.register(AccessLogFilter.class)
@@ -43,7 +43,7 @@ public class ServiceUtils {
 				.register(JacksonFeature.class);
 
 		for (Object resource : resources) {
-			rc = rc.register(resource);
+			rc.register(resource);
 		}
 
 		// create and start a new instance of grizzly http server

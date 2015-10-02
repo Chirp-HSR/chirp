@@ -15,19 +15,17 @@ public class RedisCachedTimelineRenderer extends TimelineRenderer {
 
 	@Override
 	public String renderTweet(Tweet tweet) {
-		Jedis jedis = pool.getResource();
-
-		String tweetKey = String.format("tweet:%d", tweet.hashCode());
-		String renderedTweet = jedis.get(tweetKey);
-
-		if (renderedTweet == null) {
-			renderedTweet = super.renderTweet(tweet);
-			jedis.set(tweetKey, renderedTweet);
+		try(final Jedis jedis = pool.getResource()) {
+			final String tweetKey = String.format("tweet:%d", tweet.hashCode());
+			String renderedTweet = jedis.get(tweetKey);
+	
+			if (renderedTweet == null) {
+				renderedTweet = super.renderTweet(tweet);
+				jedis.set(tweetKey, renderedTweet);
+			}
+	
+			return renderedTweet;
 		}
-
-		pool.returnResource(jedis);
-
-		return renderedTweet;
 	}
 
 }

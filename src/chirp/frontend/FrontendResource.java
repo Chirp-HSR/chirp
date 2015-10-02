@@ -3,6 +3,7 @@ package chirp.frontend;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -13,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.grizzly.http.server.Request;
 
@@ -37,15 +39,9 @@ public class FrontendResource {
 
 	@GET
 	public Response getMainPage(@Context Request request) {
-		Integer userId = (Integer) request.getSession().getAttribute("userId");
-
-		if (userId == null) {
-			// user is not logged in
-			return Response.ok(renderLoginForm()).build();
-		} else {
-			// user is logged in, redirect to timeline
-			return Response.seeOther(uri("/tweets")).build();
-		}
+		return userId(request)
+			.map(userId -> Response.seeOther(uri("/tweets")).build())
+			.orElseGet(() -> Response.ok(renderLoginForm()).build());
 	}
 
 	protected String renderLoginForm() {
@@ -59,29 +55,33 @@ public class FrontendResource {
 	@Path("tweets")
 	@Timed
 	public Response getTimeline(@Context Request request) throws IOException {
-		Integer userId = (Integer) request.getSession().getAttribute("userId");
-		if (userId != null) {
-			Timeline timeline = repo.getTimeline(userId);
-			return Response.ok(renderer.renderTimeline(timeline)).build();
-		} else {
-			return Response.seeOther(uri("/")).build();
-		}
+		return userId(request)
+			.map(userId -> {
+				final Timeline timeline = repo.getTimeline(userId);
+				return Response.ok(renderer.renderTimeline(timeline)).build();
+			})
+			.orElseGet(() -> Response.seeOther(uri("/")).build());
 	}
 
 	@POST
 	@Path("tweets")
-	public Response postTweet(@Context Request request,
+	public Response postTweet(
+			@Context Request request,
 			@FormParam("content") String content) {
-		Tweet tweet = new Tweet((Integer) request.getSession().getAttribute(
-				"userId"), content);
-		repo.propagateTweet(tweet);
-		return Response.seeOther(uri("/tweets")).build();
+		return userId(request)
+			.map(userId -> {
+				final Tweet tweet = new Tweet(userId, content);
+				repo.propagateTweet(tweet);
+				return Response.seeOther(uri("/tweets")).build();
+			})
+			.orElseGet(() -> Response.status(Status.UNAUTHORIZED).build());
 	}
 
 	@POST
 	@Path("login")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public Response doLogin(@Context Request request,
+	public Response doLogin(
+			@Context Request request,
 			@FormParam("userId") int userId) {
 		request.getSession().setAttribute("userId", userId);
 		return Response.seeOther(uri("/tweets")).build();
@@ -92,6 +92,11 @@ public class FrontendResource {
 	public Response doLogout(@Context Request request) {
 		request.getSession().removeAttribute("userId");
 		return Response.seeOther(uri("/")).build();
+	}
+	
+	private Optional<Integer> userId(Request request){
+		return Optional.ofNullable(
+				(Integer) request.getSession().getAttribute("userId"));
 	}
 
 	private static URI uri(String uri) {

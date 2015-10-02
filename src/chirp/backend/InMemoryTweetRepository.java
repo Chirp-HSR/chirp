@@ -29,7 +29,7 @@ public class InMemoryTweetRepository implements TweetRepository {
 		
 		followers.forEach(followerId -> {
 			LOGGER.trace("Push tweet {} to timeline {}", tweet, followerId);
-			final Queue<Tweet> timeline = timelines.getOrDefault(followerId, new CircularFifoQueue<>(100));
+			final Queue<Tweet> timeline = timelines.getOrDefault(followerId, new CircularFifoQueue<>(TIMELINE_SIZE));
 			
 			timeline.offer(tweet);
 			
@@ -43,7 +43,7 @@ public class InMemoryTweetRepository implements TweetRepository {
 	public Timeline getTimeline(int userId) {
 		LOGGER.debug("Fetch timeline of user {}", userId);
 		
-		final Queue<Tweet> timeline = timelines.getOrDefault(userId, new CircularFifoQueue<>(100));
+		final Queue<Tweet> timeline = timelines.getOrDefault(userId, new CircularFifoQueue<>(TIMELINE_SIZE));
 		
 		final List<Tweet> tweets = new LinkedList<>(timeline);
 		Collections.reverse(tweets);

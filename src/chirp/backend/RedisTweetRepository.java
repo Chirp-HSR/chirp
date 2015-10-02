@@ -49,7 +49,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 				final String timelineKey = timelineKey(followerId);
 				LOGGER.trace("Push tweet {} to timeline {}", json, timelineKey);
 				jedis.lpush(timelineKey, json);
-				jedis.ltrim(timelineKey, 0, 99);
+				jedis.ltrim(timelineKey, 0, TIMELINE_SIZE - 1);
 			});
 			
 			LOGGER.debug("{} tweets written", followers.size());
@@ -61,7 +61,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	public Timeline getTimeline(int userId) {
 		return withResource(jedis -> {
 			LOGGER.debug("Fecth timeline of user {}", userId);
-			final List<String> tweetData = jedis.lrange(timelineKey(userId), 0, 99);
+			final List<String> tweetData = jedis.lrange(timelineKey(userId), 0, TIMELINE_SIZE - 1);
 			LOGGER.debug("Received {} tweets", tweetData.size());
 
 			final List<Tweet> tweets = tweetData.stream()

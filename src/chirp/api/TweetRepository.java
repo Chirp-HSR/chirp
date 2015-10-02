@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public interface TweetRepository {
+	public final static int TIMELINE_SIZE = 100;
+	
 	public void propagateTweet(Tweet tweet);
 
 	public Timeline getTimeline(int userId);

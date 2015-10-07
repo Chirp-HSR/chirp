@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ch.hsr.vss</groupId>
+	<groupId>ch.hsr.chirp</groupId>
 	<artifactId>chirp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
@@ -139,9 +139,9 @@
                 			<output>${project.build.directory}/generated-sources/javaClient</output>
                 			<configOptions>
                    				<sourceFolder>src/gen/java/main</sourceFolder>
-                   				<groupId>chirp</groupId>
-                   				<artifactId>client</artifactId>
-                   				<artifactVersion>0.0.1</artifactVersion>
+                   				<groupId>ch.hsr.chirp</groupId>
+                   				<artifactId>chirp-java-client</artifactId>
+                   				<artifactVersion>0.0.1-SNAPSHOT</artifactVersion>
                 			</configOptions>
             			</configuration>
         			</execution>

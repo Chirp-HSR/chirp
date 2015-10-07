@@ -1,10 +1,9 @@
-package chirp.cli.distributed;
+package chirp.cli;
 
 import java.io.IOException;
 
 import chirp.backend.FollowersResource;
 import chirp.backend.TweetsResource;
-import chirp.cli.utils.ServiceUtils;
 
 public class ChirpBackendService {
 

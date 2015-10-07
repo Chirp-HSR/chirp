@@ -9,8 +9,8 @@ public class RedisCachedTimelineRenderer extends TimelineRenderer {
 
 	private final JedisPool pool;
 
-	public RedisCachedTimelineRenderer(String redisCacheHost, int redisCachePort) {
-		pool = new JedisPool(redisCacheHost, redisCachePort);
+	public RedisCachedTimelineRenderer(String redisCacheHost) {
+		pool = new JedisPool(redisCacheHost);
 	}
 
 	@Override

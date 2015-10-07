@@ -79,8 +79,7 @@ public class RedisTweetRepository implements TweetRepository, RedisTweetReposito
 	private <T> T withResource(Function<Jedis, T> fn) {
 		try {
 			try(final Jedis jedis = pool.getResource()) {
-				final T res = fn.apply(jedis);
-				return res;
+				return fn.apply(jedis);
 			}
 		} catch (JedisConnectionException e) {
 			LOGGER.error("Unable to connect to Redis at {}", redisHost, e);

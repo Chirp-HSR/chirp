@@ -1,4 +1,4 @@
-package chirp.cli.utils;
+package chirp.cli;
 
 import java.io.IOException;
 import java.net.URI;

@@ -63,6 +63,7 @@
 			<version>${metrics.version}</version>
 		</dependency>
 		<dependency>
+			<!-- Swagger Annotations for documenting the backend API -->
   			<groupId>io.swagger</groupId>
   			<artifactId>swagger-jersey2-jaxrs</artifactId>
   			<version>1.5.0</version>
@@ -79,6 +80,11 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.4.0</version>
 			</plugin>
         	<plugin>
             	<groupId>com.github.kongchen</groupId>

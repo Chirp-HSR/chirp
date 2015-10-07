@@ -9,16 +9,14 @@ The following software must be available to setup and run the Chirp service:
 * JDK 8 or newer
 * Maven 3 or newer
 * Eclipse JDT
-* Redis (optional)
-
-    A windows distribution of Redis is available at https://github.com/MSOpenTech/redis/releases
+* Redis (optional) - A windows distribution of Redis is available at https://github.com/MSOpenTech/redis/releases
 
 ### Setup
 
-1. Check out the project with `...` into your workspace directory.
+1. Check out the project with `git clone https://github.com/Chirp-HSR/chirp.git` into your workspace directory.
 2. The repository includes Eclipse project settings. Thus, you can simply import the project folder into an Eclipse workspace.
 
-    If you made changes to the `pom.xml`, you may have to newly generate the project settings. You can do this by running `mvn eclipse:eclipse`.
+If you updated the `pom.xml`, you may have to newly generate the project settings. You can do this by running `mvn eclipse:eclipse`.
 
 ### Executables
 

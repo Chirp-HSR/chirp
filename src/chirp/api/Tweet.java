@@ -1,5 +1,7 @@
 package chirp.api;
 
+import chirp.utils.OptOps;
+
 public class Tweet {
 	private final int originatorId;
 
@@ -22,16 +24,14 @@ public class Tweet {
 	public String getContent() {
 		return content;
 	}
-	
-	public boolean equals(Object o){
-		if(o instanceof Tweet){
-			final Tweet ot = (Tweet) o;
-			return originatorId == ot.originatorId && content.equals(ot.content);
-		}
-		return false;
+
+	public boolean equals(Object o) {
+		return OptOps.tryCast(o, Tweet.class)
+				.map(ot -> originatorId == ot.originatorId && content.equals(ot.content))
+				.orElse(false);
 	}
-	
-	public int hashCode(){
-		return (int) (13*originatorId) + content.hashCode();
+
+	public int hashCode() {
+		return (int) (13 * originatorId) + content.hashCode();
 	}
 }

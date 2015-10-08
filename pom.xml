@@ -138,7 +138,7 @@
                 			<addCompileSourceRoot>false</addCompileSourceRoot>
                 			<output>${project.build.directory}/generated-sources/javaClient</output>
                 			<configOptions>
-                   				<sourceFolder>src/gen/java/main</sourceFolder>
+                   				<sourceFolder>src/main/java</sourceFolder>
                    				<groupId>ch.hsr.chirp</groupId>
                    				<artifactId>chirp-java-client</artifactId>
                    				<artifactVersion>0.0.1-SNAPSHOT</artifactVersion>

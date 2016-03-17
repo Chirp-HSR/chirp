@@ -2,6 +2,10 @@ package chirp.cli;
 
 import chirp.api.TweetRepository;
 import chirp.backend.InMemoryTweetRepository;
+import chirp.backend.RedisTweetRepository;
+import chirp.frontend.HttpTweetRepositoryClient;
+import chirp.frontend.rendering.CachedTimelineRenderer;
+import chirp.frontend.rendering.RedisCachedTimelineRenderer;
 import chirp.frontend.rendering.TimelineRenderer;
 
 public class FrontendConfig {
@@ -13,7 +17,7 @@ public class FrontendConfig {
 	/**
 	 * The URI of the backend service.
 	 */
-	public static final String BACKEND_URI = "http://localhost:9090/";
+	public static final String BACKEND_URI = BackendConfig.HOST_URI;
 	
 	/**
 	 * URI of the Redis instance that stores the tweets.
@@ -28,19 +32,32 @@ public class FrontendConfig {
 	public static final String REDIS_CACHE_URI = "http://localhost:6380";
 	
 	/**
-	 * The implementation of the tweets repository. Use the following:
-	 * - `new InMemoryTweetRepository()` tweets are stored in-memory
-	 * - `new RedisTweetRepository(REDIS_URI)` tweets are stored on a Redis instance
-	 * - `new HttpTweetRepositoryClient(BACKEND_URI)` persistency is delegated to the backend service 
+	 * In-memory implementation of the tweet repository.
 	 */
-	public static final TweetRepository REPO = new InMemoryTweetRepository();
+	public static final TweetRepository IN_MEMORY_REPO = new InMemoryTweetRepository();
+
+	/**
+	 * Tweets are stored on a Redis instance.
+	 */
+	public static final TweetRepository REDIS_REPO = new RedisTweetRepository(REDIS_URI);
 	
 	/**
-	 * The class used for rendering timelines. Use one of the following:
-	 * 
-	 * - `new TimelineRenderer()` for non-cached rendering
-	 * - `new CachedTimelineRenderer()` for in-memory caching
-	 * - `new RedisCachedTimelineRenderer(REDIS_CACHE_URI)` for distributed caching on a Redis cache
+	 * Persistency is delegated to the backend service.
+	 */
+	public static final TweetRepository BACKEND_REPO = new HttpTweetRepositoryClient(BACKEND_URI);
+	
+	/**
+	 * Default class for rendering timelines.
 	 */
 	public static final TimelineRenderer RENDERER = new TimelineRenderer();
+	
+	/**
+	 * Caches rendered tweets in-memory.
+	 */
+	public static final TimelineRenderer CACHED_RENDERER = new CachedTimelineRenderer();
+	
+	/**
+	 * Uses Redis to cache rendered tweets.
+	 */
+	public static final TimelineRenderer REDIS_CACHED_RENDERER = new RedisCachedTimelineRenderer(REDIS_CACHE_URI);
 }

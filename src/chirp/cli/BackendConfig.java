@@ -2,6 +2,7 @@ package chirp.cli;
 
 import chirp.api.TweetRepository;
 import chirp.backend.InMemoryTweetRepository;
+import chirp.backend.RedisTweetRepository;
 
 public class BackendConfig {
 	/**
@@ -16,9 +17,12 @@ public class BackendConfig {
 	public static final String REDIS_URI = "http://localhost:6379";
 	
 	/**
-	 * The implementation of the tweets repository. Use the following:
-	 * - new InMemoryTweetRepository()
-	 * - new RedisTweetRepository(REDIS_URI)
+	 * In-memory implementation of the tweet repository.
 	 */
-	public static final TweetRepository REPO = new InMemoryTweetRepository();
+	public static final TweetRepository IN_MEMORY_REPO = new InMemoryTweetRepository();
+
+	/**
+	 * Tweets are stored on a Redis instance.
+	 */
+	public static final TweetRepository REDIS_REPO = new RedisTweetRepository(REDIS_URI);
 }

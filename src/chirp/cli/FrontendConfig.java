@@ -12,7 +12,7 @@ public class FrontendConfig {
 	/**
 	 * The URI the frontend service is exposed at.
 	 */
-	public static final String HOST_URI = "http://localhost:9000/";
+	public static final String HOST_URI = "http://0.0.0.0:9000/";
 	
 	/**
 	 * The URI of the backend service.
